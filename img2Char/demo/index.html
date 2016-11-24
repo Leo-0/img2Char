@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>img 2 char</title>
+	<link rel="stylesheet" type="text/css" href="css/img2char.css">
+	<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+</head>
+<body>
+	
+	<div id="container">
+	<div id="setcontainer">
+		<div>
+			<input type="file" name="imgfile" id="choose" accept="image/jpg,image/bmp,image/png,image/gif,image/jpeg" style="display: none;" />
+			<label>设置你的字符</label>
+			<input class="char" id="character0" type="text" placeholder="#" />
+			<input class="char" id="character1" type="text" placeholder="&" />
+			<input class="char" id="character2" type="text" placeholder="@" />
+			<input class="char" id="character3" type="text" placeholder="%" />
+			<input class="char" id="character4" type="text" placeholder="$" />
+			<input class="char" id="character5" type="text" placeholder="w" />
+			<input class="char" id="character6" type="text" placeholder="*" />
+			<input class="char" id="character7" type="text" placeholder="+" />
+			<input class="char" id="character8" type="text" placeholder="o" />
+			<input class="char" id="character9" type="text" placeholder="?" />
+			<input class="char" id="character10" type="text" placeholder="!" />
+			<input class="char" id="character11" type="text" placeholder=";" />
+			<input class="char" id="character12" type="text" placeholder="^" />
+			<input class="char" id="character13" type="text" placeholder="," />
+			<input class="char" id="character14" type="text" placeholder="." />
+			<input class="char" id="character15" type="text" placeholder=" " />
+		</div>
+		<div id="btn">选择图片</div>
+	</div>
+		<canvas id="canvas">当前浏览器不支持canvas，请更换浏览器</canvas>
+		<canvas id="imgdata"></canvas>
+	</div>
+	<script type="text/javascript" src="js/img2char.js"></script>
+</body>
+</html>
