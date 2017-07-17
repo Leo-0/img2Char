@@ -10,22 +10,12 @@
 #imgdata {
 	display: none;
 }
-#btn {
-	width: 100px;
-	height: 30px;
-	background-color: #1EABEC;
-	line-height: 30px;
-	text-align: center;
-	color: white;
-	margin-left: 10px;
-	cursor: pointer;
-}
 #setcontainer {
 	width: 1000px;
 	height: 30px;
 	margin: 10px auto;
 }
-#setcontainer div {
+#setcontainer #charContainer {
 	float: left;
 }
 #setcontainer input {
@@ -35,6 +25,17 @@
 	text-align: center;
 	font-size: 16px;
 	border: 1px solid black;
+}
+#setcontainer #btn {
+	width: 100px;
+	height: 30px;
+	background-color: #1EABEC;
+	line-height: 30px;
+	text-align: center;
+	color: white;
+	margin-left: 10px;
+	cursor: pointer;
+	float: right;
 }
 ::-webkit-input-placeholder { /* WebKit browsers */ 
 	color: gray; 
