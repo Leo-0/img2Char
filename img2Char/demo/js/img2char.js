@@ -21,6 +21,7 @@ function getGray(r, g, b) {
 }
 
 function initAndDrawText() {
+    $('#btn').text('选择图片');
     var rem = img.width / img.height;
     cns.width = height * rem;
     cns.height = height;
@@ -49,6 +50,7 @@ $('#choose').change(function() {
     var reader = new FileReader();
     reader.readAsDataURL($(this)[0].files[0]);
     reader.onload = function() {
+        $('#btn').text('请稍候...');
         img.src = reader.result;
     }
 });
