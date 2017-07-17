@@ -1,6 +1,7 @@
 ## img2Char
 使用canvas，将图片转换成字符画.
-选择图片后显示转化的字符画，可以设置字符.
+选择图片后显示转化的字符画，可以设置字符.<br />
+[查看效果](http://htmlpreview.github.io/?https://github.com/Leo-0/img2Char/blob/master/img2Char/demo/index.html)
 ### 原理
 这里主要用到canvas的一个API,`getImageData(x,y,width,height)`,具体看[w3school](http://www.w3school.com.cn/tags/canvas_getimagedata.asp).
 <br />
