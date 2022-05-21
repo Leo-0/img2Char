@@ -3,28 +3,42 @@ var ctx = cns.getContext('2d');
 var cnsd = $('#imgdata')[0];
 var ctxd = cnsd.getContext('2d');
 
-var text = ['#', '&', '@', '%', '$', 'w', '*', '+', 'o', '?', '!', ';', '^', ',', '.', ' '];
+var text = ['#', '&', '@', '%', '$', 'w', '*', '+', 'o', '?', '!', ';', '^', ',', '.', ''];
 var img = new Image();
-var width = 1000;
-var height = 600;
+var golden_ratio = (Math.sqrt(5) - 1) / 2;//0.618
+var width = window.screen.availWidth - 30;
+var height = width * golden_ratio;//window.screen.availHeight - 150;
 cns.width = width;
 cns.height = height;
-img.onload = initAndDrawText;
+img.onload = function () { time = getTimeInterval(); initAndDrawText(time); };
+
+function getTimeInterval() {
+    var reg = new RegExp("#([0-9]+)");
+    var res = window.location.href.match(reg);
+    return res ? parseInt(res[1]) : 0;
+}
 
 function img2Text(g) {
-    var i = g % 16 === 0 ? parseInt(g / 16) - 1 : parseInt(g / 16);
+    var len = text.length;
+    // var i = g % len === 0 && g !== 0 ? parseInt(g / len) - 1 : parseInt(g / len);
+    var i = parseInt(g / len);
+    if (i >= len) {
+        return img2Text(i);
+    }
     return text[i];
 }
 
 function getGray(r, g, b) {
-    return 0.299 * r + 0.578 * g + 0.114 * b;
+    return 0.299 * r + 0.587 * g + 0.114 * b;
+    // return Math.pow((Math.pow(r, 2.2) + Math.pow(1.5 * g, 2.2) + Math.pow(0.6 * b, 2.2)) / (1 + Math.pow(1.5, 2.2) + Math.pow(0.6, 2.2)), 1 / 2.2)
 }
 
-function initAndDrawText() {
+function initAndDrawText(time = 0) {
     $('#btn').text('选择图片');
     var rem = img.width / img.height;
-    cns.width = height * rem;
-    cns.height = height;
+    w = img.width > width ? width : img.width;
+    cns.width = w < 500 ? 500 : w;
+    cns.height = cns.width / rem;
     cnsd.width = cns.width;
     cnsd.height = cns.height;
     ctx.clearRect(0, 0, cns.width, cns.height);
@@ -34,27 +48,51 @@ function initAndDrawText() {
     var imgDataArr = imgData.data;
     for (var h = 0; h < cns.height; h += 8) {
         for (var w = 0; w < cns.width; w += 6) {
-            var index = (w + cns.width * h) * 4;
-            var r = imgDataArr[index + 0];
-            var g = imgDataArr[index + 1];
-            var b = imgDataArr[index + 2];
-            var gray = getGray(r, g, b);
-            ctx.fillText(img2Text(gray), w, h + 8);
+            if (time != 0 && typeof (time) === "number")
+                setTimeout(drawText(w, h, imgDataArr), time);
+            else
+                drawText(w, h, imgDataArr)();
+            // (function (w, h) {
+            //     setTimeout(function () {
+            //         var index = (w + cns.width * h) * 4;
+            //         var r = imgDataArr[index + 0];
+            //         var g = imgDataArr[index + 1];
+            //         var b = imgDataArr[index + 2];
+            //         var gray = getGray(r, g, b);
+            //         ctx.fillText(img2Text(gray), w, h + 8);
+            //     }, 500);
+            // })(w, h);
         }
     }
 }
-$('#btn').click(function() {
-    document.all.imgfile.click();
+function drawText(w, h, imgDataArr) {
+    return function () {
+        var index = (w + cns.width * h) * 4;
+        var r = imgDataArr[index + 0];
+        var g = imgDataArr[index + 1];
+        var b = imgDataArr[index + 2];
+        var gray = getGray(r, g, b);
+        ctx.fillText(img2Text(gray), w, h + 8);
+    };
+}
+$('#btn').click(function () {
+    // document.all.imgfile.click();
+    document.getElementById("choose").click();
 });
-$('#choose').change(function() {
+$('#choose').change(function () {
     var reader = new FileReader();
-    reader.readAsDataURL($(this)[0].files[0]);
-    reader.onload = function() {
-        $('#btn').text('请稍候...');
-        img.src = reader.result;
+    try {
+        reader.readAsDataURL($(this)[0].files[0]);
+        reader.onload = function () {
+            $('#btn').text('请稍候...');
+            img.src = reader.result;
+        }
+    } catch (error) {
+
     }
 });
-$('.char').bind('input propertychange', function() {
+// bind('input propertychange')
+$('.char').bind('change', function () {
     var i = parseInt($(this).attr('id').substring(9));
     if ($(this).val() !== "" && $(this).val().length <= 1)
         text[i] = $(this).val();
