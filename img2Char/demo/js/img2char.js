@@ -17,7 +17,7 @@ var color = getColor();
 var colorit = getColorIt();
 function getColorIt() {
     var reg = /colorit=([01])/;
-    var res = window.location.href.match(reg);
+    var res = decodeURIComponent(window.location.href).match(reg);
     return res ? parseInt(res[1]) : 0;
 }
 function getColor() {
@@ -32,7 +32,7 @@ function getFont() {
 }
 function getTimeInterval() {
     var reg = /time=[\d]+/;
-    var res = window.location.href.match(reg);
+    var res = decodeURIComponent(window.location.href).match(reg);
     return res ? parseInt(res[1]) : 0;
 }
 
