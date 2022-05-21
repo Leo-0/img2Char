@@ -54,8 +54,8 @@ function getGray(r, g, b) {
 function initAndDrawText(time = 0) {
     $('#btn').text('选择图片');
     var rem = img.width / img.height;
-    w = img.width > width ? width : img.width;
-    cns.width = w < 500 ? 500 : w;
+    var cw = img.width > width ? width : img.width;
+    cns.width = cw < 500 ? 500 : cw;
     cns.height = cns.width / rem;
     cnsd.width = cns.width;
     cnsd.height = cns.height;
