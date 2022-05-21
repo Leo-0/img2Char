@@ -1,8 +1,10 @@
 var cns = $('#canvas')[0];
 var ctx = cns.getContext('2d');
+var font = getFont();
+ctx.font = font;
+var maxCharSize = ctx.measureText("&").width;
 var cnsd = $('#imgdata')[0];
 var ctxd = cnsd.getContext('2d');
-
 var text = ['#', '&', '@', '%', '$', 'w', '*', '+', 'o', '?', '!', ';', '^', ',', '.', ''];
 var img = new Image();
 var golden_ratio = (Math.sqrt(5) - 1) / 2;//0.618
@@ -11,9 +13,25 @@ var height = width * golden_ratio;//window.screen.availHeight - 150;
 cns.width = width;
 cns.height = height;
 img.onload = function () { time = getTimeInterval(); initAndDrawText(time); };
-
+var color = getColor();
+var colorit = getColorIt();
+function getColorIt() {
+    var reg = /colorit=([01])/;
+    var res = window.location.href.match(reg);
+    return res ? parseInt(res[1]) : 0;
+}
+function getColor() {
+    var reg = /color=([a-zA-Z]+)|[\"|\']((#[\da-fA-F]{6})|(rgb\([\d]{1,3},[\d]{1,3},[\d]{1,3}\))|[a-zA-Z]+)[\"|\']/;
+    var res = decodeURIComponent(window.location.href).match(reg);
+    return res ? typeof res[1] !== "undefined" ? res[1] : res[2] : "";
+}
+function getFont() {
+    var reg = /font=[\"|\']([\d]+(\.[\d]+)?px [\S]+)[\"|\']/;
+    var res = decodeURIComponent(window.location.href).match(reg);
+    return res ? res[1] : "10px sans-serif";
+}
 function getTimeInterval() {
-    var reg = new RegExp("#([0-9]+)");
+    var reg = /time=[\d]+/;
     var res = window.location.href.match(reg);
     return res ? parseInt(res[1]) : 0;
 }
@@ -48,7 +66,7 @@ function initAndDrawText(time = 0) {
     var imgDataArr = imgData.data;
     for (var h = 0; h < cns.height; h += 8) {
         for (var w = 0; w < cns.width; w += 6) {
-            if (time != 0 && typeof (time) === "number")
+            if (time != 0 && typeof time === "number")
                 setTimeout(drawText(w, h, imgDataArr), time);
             else
                 drawText(w, h, imgDataArr)();
@@ -72,8 +90,19 @@ function drawText(w, h, imgDataArr) {
         var g = imgDataArr[index + 1];
         var b = imgDataArr[index + 2];
         var gray = getGray(r, g, b);
-        ctx.fillText(img2Text(gray), w, h + 8);
+        var char = img2Text(gray);
+        if (ctx.measureText(char).width > maxCharSize)
+            ctx.font = "bold " + maxCharSize + "px " + font.split(" ")[1];
+        if (colorit === 1) {
+            ctx.fillStyle = color !== "" ? color : ("rgb(" + r + "," + g + "," + b + ")");
+        }
+        ctx.fillText(char, w, h + 8);
+        ctx.font = font;
     };
+}
+function checkChinese(ch) {
+    var reg = new RegExp("[\\u4E00-\\u9FFF]+");
+    return reg.test(ch);
 }
 $('#btn').click(function () {
     // document.all.imgfile.click();
