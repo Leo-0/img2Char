@@ -17,7 +17,9 @@ var color = getColor();
 var colorit = getColorIt();
 var minwidth = getMinWidth();
 var resize = getResize();
-console.log("options:color,colorit,font,maxcharsize,minwidth,resize,time");
+var zoom = getZoom();
+var perchar = getPerChar();
+console.log("options:color=(rgb(r,g,b)|color|#xxxxxx),colorit=(yes|y),font=(10px sans-serif|font),maxcharsize=char,minwidth=int,perchar=(yes|y),resize=char,time=int,zoom=number");
 function getQueryString(name, nopevalue, r) {
     var reg = r ? r : new RegExp("(^|[\?&])" + name + "=([^&]*)(&|$)", "i");
     var res = decodeURIComponent(window.location.href).match(reg);
@@ -28,7 +30,7 @@ function getMinWidth() {
     // var reg = /minwidth=([\d]+)/i;
     // var res = decodeURIComponent(window.location.href).match(reg);
     // return res ? parseInt(res[1]) : 0;
-    return parseInt(getQueryString("minwidth", 500));
+    return parseInt(getQueryString("minwidth", 0));
 }
 function getColorIt() {
     // var reg = /colorit=([01])/i;
@@ -62,6 +64,12 @@ function getMaxCharSize() {
     var reg = /[\?&]maxcharsize=([\S])/i;
     return ctx.measureText(getQueryString("maxcharsize", "", reg)).width;
 }
+function getZoom() {
+    return Number(getQueryString("zoom", 1));
+}
+function getPerChar() {
+    return getQueryString("perchar", "no");
+}
 function img2Text(g) {
     var len = text.length;
     // var i = g % len === 0 && g !== 0 ? parseInt(g / len) - 1 : parseInt(g / len);
@@ -79,9 +87,10 @@ function getGray(r, g, b) {
 
 function initAndDrawText(time = 0) {
     $('#btn').text('选择图片');
+    window.scrollTo(0, 50);
     var rem = img.width / img.height;
     var cw = img.width > width ? width : img.width;
-    cns.width = cw < minwidth ? minwidth : cw;
+    cns.width = cw * zoom < minwidth && minwidth > 0 ? minwidth : cw * zoom;
     cns.height = cns.width / rem;
     cnsd.width = cns.width;
     cnsd.height = cns.height;
@@ -90,12 +99,14 @@ function initAndDrawText(time = 0) {
     ctxd.drawImage(img, 0, 0, cnsd.width, cnsd.height);
     var imgData = ctxd.getImageData(0, 0, cnsd.width, cnsd.height);
     var imgDataArr = imgData.data;
+    var i = 1;
     for (var h = 0; h < cns.height; h += 8) {
         for (var w = 0; w < cns.width; w += 6) {
-            if (time !== 0 && typeof time === "number")
-                setTimeout(drawText(w, h, imgDataArr), time);
+            if (time && typeof time === "number")
+                setTimeout(drawText(w, h, imgDataArr), time * i);
             else
                 drawText(w, h, imgDataArr)();
+            i = perchar.toLowerCase() === "yes" || perchar.toLowerCase() === "y" ? i + 1 : 1;
             // (function (w, h) {
             //     setTimeout(function () {
             //         var index = (w + cns.width * h) * 4;
