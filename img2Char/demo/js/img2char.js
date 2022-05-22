@@ -2,7 +2,7 @@ var cns = $('#canvas')[0];
 var ctx = cns.getContext('2d');
 var font = getFont();
 ctx.font = font;
-var maxCharSize = ctx.measureText("&").width;
+var maxCharSize = getMaxCharSize();
 var cnsd = $('#imgdata')[0];
 var ctxd = cnsd.getContext('2d');
 var text = ['#', '&', '@', '%', '$', 'w', '*', '+', 'o', '?', '!', ';', '^', ',', '.', ''];
@@ -15,27 +15,53 @@ cns.height = height;
 img.onload = function () { time = getTimeInterval(); initAndDrawText(time); };
 var color = getColor();
 var colorit = getColorIt();
-function getColorIt() {
-    var reg = /colorit=([01])/;
+var minwidth = getMinWidth();
+var resize = getResize();
+console.log("options:color,colorit,font,maxcharsize,minwidth,resize,time");
+function getQueryString(name, nopevalue, r) {
+    var reg = r ? r : new RegExp("(^|[\?&])" + name + "=([^&]*)(&|$)", "i");
     var res = decodeURIComponent(window.location.href).match(reg);
-    return res ? parseInt(res[1]) : 0;
+    console.log(res);
+    return res ? r ? typeof res[1] !== "undefined" ? res[1] : res[2] : res[2] : nopevalue;
+}
+function getMinWidth() {
+    // var reg = /minwidth=([\d]+)/i;
+    // var res = decodeURIComponent(window.location.href).match(reg);
+    // return res ? parseInt(res[1]) : 0;
+    return parseInt(getQueryString("minwidth", 500));
+}
+function getColorIt() {
+    // var reg = /colorit=([01])/i;
+    // var res = decodeURIComponent(window.location.href).match(reg);
+    // return res ? parseInt(res[1]) : 0;
+    return getQueryString("colorit", "no");
 }
 function getColor() {
-    var reg = /color=([a-zA-Z]+)|[\"|\']((#[\da-fA-F]{6})|(rgb\([\d]{1,3},[\d]{1,3},[\d]{1,3}\))|[a-zA-Z]+)[\"|\']/;
-    var res = decodeURIComponent(window.location.href).match(reg);
-    return res ? typeof res[1] !== "undefined" ? res[1] : res[2] : "";
+    // var reg = /[\?&]color=[\"\']?((#[\da-fA-F]{6})|(#[\da-fA-F]{3})|(rgb\([\d]{1,3},[\d]{1,3},[\d]{1,3}\))|[a-zA-Z]+)[\"\']?(&|$)/i;
+    // var res = decodeURIComponent(window.location.href).match(reg);
+    // return res ? typeof res[1] !== "undefined" ? res[1] : res[2] : "";
+    return getQueryString("color", "").replace(/^["']+|["']+$/gm, "");
 }
 function getFont() {
-    var reg = /font=[\"|\']([\d]+(\.[\d]+)?px [\S]+)[\"|\']/;
-    var res = decodeURIComponent(window.location.href).match(reg);
-    return res ? res[1] : "10px sans-serif";
+    // var reg = /font=[\"|\']([\d]+(\.[\d]+)?px [\S]+)[\"|\']/i;
+    // var res = decodeURIComponent(window.location.href).match(reg);
+    // return res ? res[1] : "10px sans-serif";
+    return getQueryString("font", "10px sans-serif").replace(/^["']+|["']+$/gm, "");
 }
 function getTimeInterval() {
-    var reg = /time=[\d]+/;
-    var res = decodeURIComponent(window.location.href).match(reg);
-    return res ? parseInt(res[1]) : 0;
+    // var reg = /time=[\d]+/i;
+    // var res = decodeURIComponent(window.location.href).match(reg);
+    // return res ? parseInt(res[1]) : 0;
+    return parseInt(getQueryString("time", 0));
 }
-
+function getResize() {
+    return ctx.measureText(getQueryString("resize", "")).width;
+}
+function getMaxCharSize() {
+    // var reg = /[\?&]maxcharsize=["']([^"'])(["']|$)/i;
+    var reg = /[\?&]maxcharsize=([\S])/i;
+    return ctx.measureText(getQueryString("maxcharsize", "", reg)).width;
+}
 function img2Text(g) {
     var len = text.length;
     // var i = g % len === 0 && g !== 0 ? parseInt(g / len) - 1 : parseInt(g / len);
@@ -55,7 +81,7 @@ function initAndDrawText(time = 0) {
     $('#btn').text('选择图片');
     var rem = img.width / img.height;
     var cw = img.width > width ? width : img.width;
-    cns.width = cw < 500 ? 500 : cw;
+    cns.width = cw < minwidth ? minwidth : cw;
     cns.height = cns.width / rem;
     cnsd.width = cns.width;
     cnsd.height = cns.height;
@@ -66,7 +92,7 @@ function initAndDrawText(time = 0) {
     var imgDataArr = imgData.data;
     for (var h = 0; h < cns.height; h += 8) {
         for (var w = 0; w < cns.width; w += 6) {
-            if (time != 0 && typeof time === "number")
+            if (time !== 0 && typeof time === "number")
                 setTimeout(drawText(w, h, imgDataArr), time);
             else
                 drawText(w, h, imgDataArr)();
@@ -91,11 +117,12 @@ function drawText(w, h, imgDataArr) {
         var b = imgDataArr[index + 2];
         var gray = getGray(r, g, b);
         var char = img2Text(gray);
-        if (ctx.measureText(char).width > maxCharSize)
-            ctx.font = "bold " + maxCharSize + "px " + font.split(" ")[1];
-        if (colorit === 1) {
+        if (maxCharSize > 0 && ctx.measureText(char).width > maxCharSize)
+            ctx.font = font.replace(/\d+px/, maxCharSize + "px");
+        if (parseInt(gray / text.length) >= 9 && checkChinese(char) && resize > 0)
+            ctx.font = font.replace(/\d+px/, resize + "px");
+        if (colorit.toLowerCase() === "yes" || colorit.toLowerCase() === "y")
             ctx.fillStyle = color !== "" ? color : ("rgb(" + r + "," + g + "," + b + ")");
-        }
         ctx.fillText(char, w, h + 8);
         ctx.font = font;
     };
