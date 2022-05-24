@@ -9,17 +9,18 @@ var text = ['#', '&', '@', '%', '$', 'w', '*', '+', 'o', '?', '!', ';', '^', ','
 var img = new Image();
 var golden_ratio = (Math.sqrt(5) - 1) / 2;//0.618
 var width = window.screen.availWidth - 30;
-var height = width * golden_ratio;//window.screen.availHeight - 150;
+var height = width * golden_ratio;//window.innerHeight - 50;
 cns.width = width;
 cns.height = height;
-img.onload = function () { time = getTimeInterval(); initAndDrawText(time); };
+var time = getTimeInterval();
+img.onload = function () { initAndDrawText(time); };
 var color = getColor();
 var colorit = getColorIt();
 var minwidth = getMinWidth();
 var resize = getResize();
 var zoom = getZoom();
 var perchar = getPerChar();
-console.log("options:color=(rgb(r,g,b)|color|#xxxxxx),colorit=(yes|y),font=(10px sans-serif|font),maxcharsize=char,minwidth=int,perchar=(yes|y),resize=char,time=int,zoom=number");
+console.log("options:\n\tcolor=(rgb(r,g,b)|colorname|#xxxxxx),\n\tcolorit=(yes|y),\n\tfont=(10px sans-serif|fontstring),\n\tmaxcharsize=char,\n\tminwidth=int,\n\tperchar=(yes|y),\n\tresize=char,\n\ttime=int,\n\tzoom=number");
 function getQueryString(name, nopevalue, r) {
     var reg = r ? r : new RegExp("(^|[\?&])" + name + "=([^&]*)(&|$)", "i");
     var res = decodeURIComponent(window.location.href).match(reg);
@@ -30,7 +31,8 @@ function getMinWidth() {
     // var reg = /minwidth=([\d]+)/i;
     // var res = decodeURIComponent(window.location.href).match(reg);
     // return res ? parseInt(res[1]) : 0;
-    return parseInt(getQueryString("minwidth", 0));
+    var mw = parseInt(getQueryString("minwidth", 0))
+    return mw ? mw : 0;
 }
 function getColorIt() {
     // var reg = /colorit=([01])/i;
@@ -65,7 +67,8 @@ function getMaxCharSize() {
     return ctx.measureText(getQueryString("maxcharsize", "", reg)).width;
 }
 function getZoom() {
-    return Number(getQueryString("zoom", 1));
+    var z = Number(getQueryString("zoom", 1))
+    return z ? z : 1;
 }
 function getPerChar() {
     return getQueryString("perchar", "no");
@@ -128,6 +131,8 @@ function drawText(w, h, imgDataArr) {
         var b = imgDataArr[index + 2];
         var gray = getGray(r, g, b);
         var char = img2Text(gray);
+        if (h + 1 > window.innerHeight && w === 0 && time > 0)
+            window.scrollTo(0, 51 + h - window.innerHeight + 8);
         if (maxCharSize > 0 && ctx.measureText(char).width > maxCharSize)
             ctx.font = font.replace(/\d+px/, maxCharSize + "px");
         if (parseInt(gray / text.length) >= 9 && checkChinese(char) && resize > 0)
