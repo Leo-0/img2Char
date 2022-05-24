@@ -105,7 +105,7 @@ function initAndDrawText(time = 0) {
     var i = 1;
     for (var h = 0; h < cns.height; h += 8) {
         for (var w = 0; w < cns.width; w += 6) {
-            if (time && typeof time === "number")
+            if (time > 0)
                 setTimeout(drawText(w, h, imgDataArr), time * i);
             else
                 drawText(w, h, imgDataArr)();
